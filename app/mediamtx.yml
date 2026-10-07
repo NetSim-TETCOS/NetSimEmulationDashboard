@@ -1,0 +1,24 @@
+rtsp: true
+rtspAddress: :8554
+rtspTransports: [udp]
+rtpAddress: :18000
+rtcpAddress: :18001
+
+rtmp: false
+hls: false
+srt: false
+api: false
+metrics: false
+pprof: false
+moq: false
+
+webrtc: true
+webrtcAddress: :8889
+webrtcAllowOrigins: ["*"]
+webrtcLocalUDPAddress: :8080
+webrtcLocalTCPAddress: ""
+webrtcAdditionalHosts: ["netsimemulation.ddns.net"]
+
+paths:
+  all_others:
+    source: publisher

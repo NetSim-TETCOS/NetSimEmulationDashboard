@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NetSim Live Network Lab</title><link rel="stylesheet" href="/static/styles.css?v=20261001-15"></head>
+<body><main class="shell">
+  <header><div class="brand"><div class="brand-mark">NS</div><div><h1>NetSim Live Network Lab</h1><div class="subtle">Participant dashboard · <span id="sessionId">Joining…</span></div></div></div>
+    <div id="connection" class="status disconnected"><span class="dot"></span><span>Disconnected</span></div></header>
+  <section class="panel identity" aria-label="Participant identity">
+    <label>Name (optional)<input id="name" maxlength="80" placeholder="Your name"></label>
+    <label>Institution (optional)<input id="institution" maxlength="120" placeholder="Institution"></label>
+    <button id="saveIdentity">Save</button>
+  </section>
+  <div class="cards">
+    <article class="card"><div class="metric-label">Current RTT</div><div class="metric-value" id="currentRtt">—</div><div class="metric-note">Application probe</div></article>
+    <article class="card"><div class="metric-label">Baseline RTT</div><div class="metric-value" id="baselineRtt">—</div><div class="metric-note" id="baselineProgress">First 10 samples</div></article>
+    <article class="card"><div class="metric-label">Observed RTT Increase</div><div class="metric-value" id="rttDelta">—</div><div class="metric-note">Current minus baseline</div></article>
+    <article class="card"><div class="metric-label">Observed RTT Jitter</div><div class="metric-value" id="jitter">—</div><div class="metric-note">Mean consecutive difference</div></article>
+    <article class="card"><div class="metric-label">Timeout Rate</div><div class="metric-value" id="timeoutRate">0%</div><div class="metric-note">5 s default timeout</div></article>
+    <article class="card"><div class="metric-label">Messages</div><div class="metric-value" id="messageCount">0</div><div class="metric-note">Echoed this connection</div></article>
+  </div>
+  <section class="grid">
+    <article class="panel"><div class="toolbar"><div><h2>RTT over time</h2><div class="subtle">Rolling window with baseline and experiment markers</div></div>
+      <label>Window<select id="window"><option value="60000">60 seconds</option><option value="300000">5 minutes</option><option value="600000">10 minutes</option></select></label></div>
+      <canvas id="rttChart" role="img" aria-label="RTT over time chart"></canvas>
+      <div class="toolbar"><button id="startProbe">Start latency test</button><button id="stopProbe" class="secondary" disabled>Stop</button><button id="resetProbe" class="secondary">Reset</button>
+        <label>Interval<select id="probeInterval"><option value="500">500 ms</option><option value="1000" selected>1 second</option><option value="2000">2 seconds</option><option value="5000">5 seconds</option></select></label></div>
+      <div class="probe-console-wrap">
+        <div class="probe-console-title"><span>Application probe console</span><span>WebSocket/TCP · TTL unavailable in browsers</span></div>
+        <pre id="probeConsole" class="probe-console" role="log" aria-live="polite" aria-label="Live application probe output">Connecting… latency test will start when the participant is connected.</pre>
+      </div>
+    </article>
+    <article class="panel"><h2>RTT statistics</h2><div class="stats-grid">
+      <div class="stat"><span class="subtle">Min</span><strong id="minRtt">—</strong></div><div class="stat"><span class="subtle">Average</span><strong id="avgRtt">—</strong></div>
+      <div class="stat"><span class="subtle">Median</span><strong id="medianRtt">—</strong></div><div class="stat"><span class="subtle">Max</span><strong id="maxRtt">—</strong></div>
+      <div class="stat"><span class="subtle">P95</span><strong id="p95Rtt">—</strong></div><div class="stat"><span class="subtle">Success</span><strong id="successCount">0</strong></div>
+      <div class="stat"><span class="subtle">Timeouts</span><strong id="timeoutCount">0</strong></div><div class="stat"><span class="subtle">Participant</span><strong id="participantId">—</strong></div>
+    </div><p>Experiment: <span class="experiment" id="experiment">BASELINE</span></p><div class="subtle" id="lastResponse">No response yet</div></article>
+  </section>
+  <section class="panel bandwidth-panel" style="margin-top:1rem"><div class="toolbar"><div><h2>Bandwidth test</h2><div class="subtle">Generated data is streamed and discarded; it is not stored or cached.</div></div><div class="toolbar"><label>Duration<select id="bandwidthDuration"><option value="5">5 seconds</option><option value="10" selected>10 seconds</option></select></label><button type="button" id="startBandwidth">Start bandwidth test</button><button type="button" id="stopBandwidth" class="secondary" disabled>Stop</button></div></div><div class="bandwidth-summary"><div class="speed-gauge" id="bandwidthGauge" aria-label="Current download speed"><div><strong id="bandwidthCurrent">—</strong><span>Mbps</span></div></div><div class="bandwidth-stats"><div class="stat"><span class="subtle">Average</span><strong id="bandwidthAverage">—</strong></div><div class="stat"><span class="subtle">Peak</span><strong id="bandwidthPeak">—</strong></div><div class="stat"><span class="subtle">Received</span><strong id="bandwidthReceived">0 MB</strong></div><div class="stat"><span class="subtle">Elapsed</span><strong id="bandwidthElapsed">0.0 s</strong></div></div></div><canvas id="bandwidthChart" role="img" aria-label="Bandwidth over time chart"></canvas><div id="bandwidthStatus" class="subtle">Ready.</div><progress id="bandwidthProgress" max="100" value="0"></progress></section>
+  <section class="grid">
+    <article class="panel"><h2>Message echo</h2><form id="messageForm" class="form-row"><label>Message<input id="messageText" maxlength="1000" required placeholder="Type message here…"></label><button type="submit">Send</button></form><ul id="messageList" class="message-list"></ul></article>
+    <article class="panel"><h2>Event log</h2><ul id="eventList" class="event-list"></ul></article>
+  </section>
+  <section id="videoPanel" class="panel hidden" style="margin-top:1rem"><div class="toolbar"><div><h2>Live network video</h2><div class="subtle" id="videoStatus">Waiting for the instructor to start a stream.</div></div><div class="toolbar"><span class="status"><span class="dot"></span><span>LIVE</span></span><button type="button" id="fullscreenVideo" class="secondary">Fullscreen</button></div></div><video id="liveVideo" autoplay muted playsinline tabindex="-1" aria-label="Live network video"></video></section>
+</main><script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script><script type="module" src="/static/participant.js?v=20261001-15"></script></body></html>

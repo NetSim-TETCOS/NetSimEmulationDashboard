@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NetSim Instructor Dashboard</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body><main class="shell">
+  <header><div class="brand"><div class="brand-mark">NS</div><div><h1>Instructor Console</h1><div class="subtle">NetSim Web Emulation Lab · <span id="sessionId">Loading…</span></div></div></div><div class="status normal"><span class="dot"></span><span>Server online</span></div></header>
+  <section id="preflightPanel" class="panel preflight-panel"><div class="toolbar"><div><h2>Startup checks</h2><div class="subtle">These checks show whether local video streaming tools are ready.</div></div><button type="button" id="refreshPreflight" class="secondary">Refresh checks</button></div><div id="preflightStatus" class="subtle">Checking local setup…</div><div id="preflightChecks" class="preflight-checks"></div></section>
+  <section id="authPanel" class="panel"><h2>Instructor access</h2><form id="loginForm" class="form-row"><label>Admin token<input id="adminToken" type="password" autocomplete="current-password"></label><button type="submit" id="login">Open dashboard</button></form><p class="subtle">Set the token with the server's ADMIN_TOKEN environment variable.</p><p id="authError" class="error"></p></section>
+  <div id="dashboard" class="hidden">
+    <div class="cards">
+      <article class="card"><div class="metric-label">Connected Participants</div><div class="metric-value" id="connected">0</div></article><article class="card"><div class="metric-label">Active Probes</div><div class="metric-value" id="activeProbes">0</div></article>
+      <article class="card"><div class="metric-label">Median RTT</div><div class="metric-value" id="medianRtt">—</div></article><article class="card"><div class="metric-label">P95 RTT</div><div class="metric-value" id="p95Rtt">—</div></article>
+      <article class="card"><div class="metric-label">Average Jitter</div><div class="metric-value" id="jitter">—</div></article><article class="card"><div class="metric-label">Timeout Rate</div><div class="metric-value" id="timeouts">0%</div></article>
+    </div>
+    <section class="grid"><article class="panel"><h2>Participant RTT series</h2><div class="subtle">Each series is labelled with participant name and institution when provided.</div><canvas id="aggregateChart"></canvas></article>
+      <article class="panel"><h2>Experiment control</h2><div class="toolbar"><label>Mode<select id="mode"><option>BASELINE</option><option>DELAY</option><option>JITTER</option><option>LOSS</option><option>CONGESTION</option><option>OUTAGE</option><option>FDI</option><option>RECOVERY</option><option>CUSTOM</option></select></label><label>Label<input id="experimentLabel" maxlength="240" placeholder="100 ms one-way delay"></label><button id="applyExperiment">Apply label</button></div><hr style="border-color:var(--line)"><form id="markerForm" class="form-row"><label>Event marker<input id="markerLabel" maxlength="240" required placeholder="Loss configured to 5%"></label><button>Add marker</button></form><ul id="eventList" class="event-list"></ul></article>
+    </section>
+    <section class="panel" style="margin-top:1rem"><h2>Live video stream</h2><form id="videoForm" class="toolbar"><label>Video file<select id="videoSelect"><option value="">No videos found</option></select></label><label>Transport<select id="videoTransport"><option value="tcp" selected>TCP / HLS</option><option value="udp">UDP / WebRTC</option></select></label><button type="button" id="refreshVideos" class="secondary">Refresh list</button><button type="submit" id="startVideo">Start stream</button><button type="button" id="stopVideo" class="secondary">Stop stream</button></form><div class="subtle" id="videoStatus">TCP / HLS is the default. UDP / WebRTC uses TCP and UDP on port 8080.</div><video id="instructorVideo" class="hidden" controls autoplay muted playsinline controlslist="nodownload noplaybackrate" disablepictureinpicture></video></section>
+    <section class="panel" style="margin-top:1rem"><div class="toolbar"><div><h2>Participants</h2><div class="subtle">Select a row for connection details and metrics</div></div><label>Search<input id="search" placeholder="ID, name, institution"></label><label class="check-label"><input id="activeOnly" type="checkbox" checked> Show connected only</label><button type="button" id="refreshParticipants" class="secondary">Refresh participants</button><button type="button" id="export" class="secondary">Export JSON</button></div>
+      <div class="table-wrap"><table><thead><tr><th data-sort="id">ID</th><th data-sort="display_name">Name</th><th data-sort="institution">Institution</th><th data-sort="ip_address">IP</th><th data-sort="status">State</th><th data-sort="current_rtt">Current RTT</th><th data-sort="baseline_rtt">Baseline</th><th data-sort="rtt_delta">RTT Delta</th><th data-sort="jitter">Jitter</th><th data-sort="timeout_percentage">Timeout %</th><th data-sort="message_count">Messages</th><th data-sort="last_seen">Last activity</th></tr></thead><tbody id="participantRows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+<div id="detailModal" class="modal hidden"><article class="panel"><div class="modal-head"><h2 id="detailTitle">Participant</h2><button id="closeDetail" class="secondary">Close</button></div><div id="detailBody"></div><canvas id="detailChart"></canvas><button id="disconnect" class="danger">Disconnect client</button></article></div>
+<script>
+  window.addEventListener('error', event => {
+    const target = document.getElementById('authError');
+    if (target) target.textContent = `Dashboard script error: ${event.message || 'unknown error'}`;
+  });
+  window.addEventListener('unhandledrejection', event => {
+    const target = document.getElementById('authError');
+    if (target) target.textContent = `Dashboard request error: ${event.reason?.message || event.reason || 'unknown error'}`;
+  });
+  window.setTimeout(() => {
+    if (!window.instructorReady) {
+      const target = document.getElementById('authError');
+      if (target) target.textContent = 'Instructor controls did not load. Refresh this page or check the browser console.';
+    }
+  }, 2000);
+</script><script type="module" src="/static/instructor.js?v=20261007-1"></script></body></html>
